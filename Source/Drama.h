@@ -8,6 +8,7 @@ struct optionPackage {
 
 struct drama {
 	int id;
+	bool isEnding;
 	string description;
 	vector<optionPackage> options;
 };

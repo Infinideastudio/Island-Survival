@@ -25,6 +25,15 @@ public:
 	//等待玩家选择
 	static int waitForChoose();
 
+	//显示错误信息
+	inline static void showError(std::string text)
+	{
+		showText(text);
+		newline();
+		system("pause");
+		exit(-1);
+	}
+
 private:
 	template <typename T>
 	inline static void showText(T text) {
