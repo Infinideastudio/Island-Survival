@@ -11,6 +11,6 @@ public:
 
 private:
 	static vector<drama> dramas;
-	static int dramaNow;
+	static unsigned int dramaNow;
 
 };

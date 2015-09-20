@@ -5,7 +5,7 @@
 #include <sstream>
 
 vector<drama> Game::dramas;
-int Game::dramaNow = 1;
+unsigned int Game::dramaNow = 1;
 
 bool Game::loadDramas()
 {
@@ -89,7 +89,7 @@ bool Game::loadDramas()
 		dramas.push_back(dm);
 
 		i++;
-		ss << "\\Dramas\\" << i << ".dat";
+		ss << "Dramas\\" << i << ".dat";
 		ifs.open(ss.str(), std::ios::in | std::ios::binary); //打开文件，为下一次循环做准备
 	}
 	return loadSuccess;
@@ -108,12 +108,7 @@ void Game::mainLoop()
 		}
 		else {
 			Console::showDescription(dmNow.description);
-
-			for each (optionPackage opt in dmNow.options)
-			{
-				Console::pushOption(opt.text);
-			}
-			Console::showOptions();
+			Console::showOptions(&dmNow.options);
 		}
 		evalResult(dmNow.options[Console::waitForChoose() - 1].result);
 	}
@@ -121,7 +116,19 @@ void Game::mainLoop()
 
 void Game::evalResult(string result)
 {
-
+	char* next_token = nullptr;
+	auto str = std::auto_ptr<char>(new char[result.length() + 1]);
+	strcpy_s(str.get(), result.length() + 1, result.data());
+	char* sentence = strtok_s(str.get(), ";", &next_token);
+	while (sentence != nullptr)
+	{
+		string strsentence = sentence;
+		if (strsentence.substr(0, 4) == "goto") {
+			dramaNow = atoi(strsentence.substr(5).c_str());
+			if (dramaNow > dramas.size()) Console::showError("错误：指令" + strsentence + "执行失败！");
+		}
+		sentence = strtok_s(nullptr, ";", &next_token);
+	}
 }
 
 void Game::gameOver(string reason)

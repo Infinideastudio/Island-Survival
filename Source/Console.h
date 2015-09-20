@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+#include "Drama.h"
 
 class Console {
 public:
@@ -9,17 +10,8 @@ public:
 		showText(text, true);
 	}
 
-	//添加一个选项
-	inline static void pushOption(std::string text)
-	{
-		options.push_back(text);
-	}
-
 	//显示所有选项
-	static void showOptions();
-
-	//显示本回合结果并清空选项
-	static void showResult(std::string text);
+	static void Console::showOptions(const vector<optionPackage>* opts);
 
 	//等待玩家选择
 	static int waitForChoose();
@@ -42,5 +34,5 @@ private:
 	inline static void newline() {
 		std::cout << std::endl;
 	}
-	static std::vector<std::string> options;
+	const static vector<optionPackage>* options;
 };
