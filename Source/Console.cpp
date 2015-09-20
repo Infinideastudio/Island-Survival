@@ -8,17 +8,17 @@ void Console::showOptions()
 	for each (std::string str in options)  //遍历输出所有选项
 	{
 		showText(++i);
-		showText(". " + str);
-		newline();
+		showText(". " + str, true);
 	}
+	options.clear();
 }
 
 void Console::showResult(std::string text)
 {
 	showText(text);
 	newline();
-	options.clear();
 }
+
 int Console::waitForChoose()
 {
 	unsigned int c;

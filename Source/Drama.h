@@ -4,6 +4,7 @@
 struct optionPackage {
 	string text;
 	string requirement;
+	string result;
 };
 
 struct drama {

@@ -6,8 +6,7 @@ public:
 	//显示描述信息
 	inline static void showDescription(std::string text)
 	{
-		showText(text);
-		newline();
+		showText(text, true);
 	}
 
 	//添加一个选项
@@ -28,18 +27,18 @@ public:
 	//显示错误信息
 	inline static void showError(std::string text)
 	{
-		showText(text);
-		newline();
+		showText(text, true);
 		system("pause");
 		exit(-1);
 	}
 
-private:
 	template <typename T>
-	inline static void showText(T text) {
+	inline static void showText(T text, bool newl = false) {
 		std::cout << text;
+		if (newl) newline();
 	}
 
+private:
 	inline static void newline() {
 		std::cout << std::endl;
 	}

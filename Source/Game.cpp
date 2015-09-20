@@ -5,6 +5,7 @@
 #include <sstream>
 
 vector<drama> Game::dramas;
+int Game::dramaNow = 1;
 
 bool Game::loadDramas()
 {
@@ -12,7 +13,7 @@ bool Game::loadDramas()
 	bool loadSuccess = false;
 	std::stringstream ss;
 	std::ifstream ifs;
-	ifs.open("Data\\1.dat", std::ios::in | std::ios::binary); //打开文件
+	ifs.open("Dramas\\1.dat", std::ios::in | std::ios::binary); //打开文件
 	while (ifs) {
 		int id;
 		ifs.read((char*)&id, sizeof(int));
@@ -36,13 +37,13 @@ bool Game::loadDramas()
 		ifs.read(description.get(), length);
 		description.get()[length] = '\0';
 		dm.description = description.get();
-
 		//开始读取选项
 		ifs.read((char*)&length, sizeof(int));
 		if (length == 0) {
 			dm.isEnding = true;
 		}
 		else {
+			dm.isEnding = false;
 			auto options = std::auto_ptr<char>(new char[length + 1]);
 			ifs.read(options.get(), length);
 			options.get()[length] = '\0';
@@ -52,20 +53,43 @@ bool Game::loadDramas()
 			while (option != nullptr)
 			{
 				optionPackage opt;
-				opt.text = option;
+				string optstr(option);
+				//遍历删除换行符
+				for (auto iter = optstr.begin(); iter != optstr.end();) {
+					if (*iter == '\r' || *iter == '\n') iter = optstr.erase(iter);
+					else iter++;
+				}
+				//格式：选项出现条件$选项内容#选择的结果
+				int optreqpos = optstr.find("$");
+				int optrespos = optstr.find("#");
+				if (optrespos == -1) {  //不允许有选项而没有结果脚本
+					loadSuccess = false;
+					break;
+				}
+				opt.result = optstr.substr(optrespos + 1);
+				if (optreqpos != -1) { //有需求脚本
+					opt.requirement = optstr.substr(0, optreqpos);
+					opt.text = optstr.substr(optreqpos + 1, optrespos - optreqpos - 1);
+				}
+				else {
+					opt.text = optstr.substr(0, optrespos);
+				}
+				
 				dm.options.push_back(opt);
 				option = strtok_s(nullptr, "|", &next_token);
 			}
 		}
 
-		dramas.push_back(dm);
-
 		ss.clear();
 		ss.str("");
 		ifs.close();
 
+		if (!loadSuccess) break; //内层加载错误
+
+		dramas.push_back(dm);
+
 		i++;
-		ss << "\\Data\\" << i << ".dat";
+		ss << "\\Dramas\\" << i << ".dat";
 		ifs.open(ss.str(), std::ios::in | std::ios::binary); //打开文件，为下一次循环做准备
 	}
 	return loadSuccess;
@@ -74,15 +98,34 @@ bool Game::loadDramas()
 void Game::mainLoop()
 {
 	if (dramas.size() == 0) return;
-	int i = 0;
+	bool gameIsRunning = true;
+	while (gameIsRunning) {
+		drama& dmNow = dramas[dramaNow - 1];
+		if (dmNow.isEnding)
+		{
+			gameOver(dmNow.description);
+			gameIsRunning = false;
+		}
+		else {
+			Console::showDescription(dmNow.description);
 
-	drama& dmNow = dramas[i];
-
-	Console::showDescription(dmNow.description);
-	for each (optionPackage opt in dmNow.options)
-	{
-		Console::pushOption(opt.text);
+			for each (optionPackage opt in dmNow.options)
+			{
+				Console::pushOption(opt.text);
+			}
+			Console::showOptions();
+		}
+		evalResult(dmNow.options[Console::waitForChoose() - 1].result);
 	}
-	Console::showOptions();
-	Console::waitForChoose();
+}
+
+void Game::evalResult(string result)
+{
+
+}
+
+void Game::gameOver(string reason)
+{
+	Console::showText(reason, true);
+	Console::showText("游戏结束！", true);
 }

@@ -6,7 +6,11 @@ class Game {
 public:
 	static bool loadDramas();
 	static void mainLoop();
+	static void evalResult(string result);
+	static void gameOver(string reason);
 
 private:
 	static vector<drama> dramas;
+	static int dramaNow;
+
 };
