@@ -1,12 +1,13 @@
 #pragma once
 #include "stdafx.h"
 #include "Drama.h"
-
+void gotoxy(short x, short y);
 class Console {
 public:
 	//显示描述信息
 	inline static void showDescription(std::string text)
 	{
+		gotoxy(12, 2);
 		showText(text, true);
 	}
 
@@ -19,6 +20,7 @@ public:
 	//显示错误信息
 	inline static void showError(std::string text)
 	{
+		gotoxy(0, 0);
 		showText(text, true);
 		system("pause");
 		exit(-1);
@@ -35,4 +37,5 @@ private:
 		std::cout << std::endl;
 	}
 	const static vector<optionPackage>* options;
+	static map<char, char> inputToOptions;
 };
