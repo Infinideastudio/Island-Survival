@@ -18,10 +18,14 @@ void Console::showOptions(const vector<optionPackage>* opts)
 	{
 		realid++;
 		if (Game::evalBoolean(opt.requirement)) {
-			gotoxy(10, 6 + i * 3);
-			showText(static_cast<int>(++i));
-			showText(". " + opt.text, true);
-			inputToOptions[i] = realid;
+			if (opt.text == "") {
+				Game::evalResult(opt.result);
+			}
+			else {
+				showText(static_cast<int>(++i));
+				showText(". " + opt.text, true);
+				inputToOptions[i] = realid;
+			}
 		}
 	}
 }
@@ -31,6 +35,7 @@ int Console::waitForChoose()
 	unsigned char c;
 	do {
 		c = (char)_getch();
+		//if (options->size() == 1) return 1; //只有一个选项
 		if (c == 's') Game::saveGame("1");
 		if (c == 'l') {
 			Game::loadGame("1");

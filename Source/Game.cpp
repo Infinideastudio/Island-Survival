@@ -10,16 +10,18 @@ vector<drama> Game::dramas;
 map<string, int> Game::vars;
 unsigned int Game::dramaNow = 1;
 string Game::dramasPath = "Island-Survival";
+
 void Game::setDramasPath(string path)
 {
 	dramasPath = path;
 }
+
 void Game::showWelcome()
 {
 	Console::showText("本文字游戏引擎由新创无际开发", true); 
 	Console::showText("This game engine is powered by Infinideas.", true);
 	Console::showText("Copyright 2015 Infinideas. Some rights reserved.", true);
-	Sleep(2500);
+	Sleep(1500);
 	system("cls");
 	std::ifstream ifs(dramasPath+"\\welcome");
 	if (!ifs) return;
@@ -136,9 +138,11 @@ void Game::mainLoop()
 			gameIsRunning = false;
 		}
 		else {
+			int dm = dramaNow;
 			Console::showDescription(dmNow.description);
 			Console::showOptions(&dmNow.options);
-			int choose = Console::waitForChoose();
+			int choose = -1;
+			if (dramaNow == dm) choose = Console::waitForChoose();
 			if (choose == -1) continue;
 			evalResult(dmNow.options[choose - 1].result);
 		}
@@ -188,6 +192,9 @@ void Game::evalResult(string result, string split)
 				string strnum = getNum(strsentence.substr(varp.second + 2));
 				if (mode == "+") vars[var] += atoi(strnum.c_str());
 				if (mode == "-") vars[var] -= atoi(strnum.c_str());
+				if (mode == "*") vars[var] *= atoi(strnum.c_str());
+				if (mode == "/") vars[var] /= atoi(strnum.c_str());
+				if (mode == "=") vars[var] = atoi(strnum.c_str());
 			}
 		}
 	} while (sentence = strtok_s(nullptr, ";", &next_token));
@@ -214,7 +221,8 @@ bool Game::evalBoolean(string sentence)
 		string var = varp.first;
 		string mode = str.substr(varp.second + 1, 1);
 		string strnum = getNum(str.substr(varp.second + 2));
-		if ((mode == ">" && vars[var] > atoi(strnum.c_str())) || (mode == "<" && vars[var] < atoi(strnum.c_str()))) {
+		int num = atoi(strnum.c_str());
+		if ((mode == "=" && vars[var] == num) || (mode == ">" && vars[var] > num) || (mode == "<" && vars[var] < num)) {
 			if (first) result = true;
 			else if (flag == 0) result = result && true;
 			else result = true;
@@ -254,7 +262,7 @@ void Game::gameOver(string reason)
 
 void Game::saveGame(string id)
 {
-	std::ofstream os("Saves\\" + id + ".dat", std::ios::out | std::ios::binary);
+	std::ofstream os(dramasPath+"\\Saves\\" + id + ".dat", std::ios::out | std::ios::binary);
 	os << dramaNow << " ";
 	for each (auto p in vars)
 	{
@@ -264,7 +272,7 @@ void Game::saveGame(string id)
 
 void Game::loadGame(string id)
 {
-	std::ifstream is("Saves\\" + id + ".dat", std::ios::in | std::ios::binary);
+	std::ifstream is(dramasPath + "\\Saves\\" + id + ".dat", std::ios::in | std::ios::binary);
 	is >> dramaNow;
 	vars.clear();
 	while (!is.eof()) {
