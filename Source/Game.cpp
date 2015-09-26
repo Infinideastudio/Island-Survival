@@ -9,6 +9,28 @@
 vector<drama> Game::dramas;
 map<string, int> Game::vars;
 unsigned int Game::dramaNow = 1;
+string Game::dramasPath = "Island-Survival";
+void Game::setDramasPath(string path)
+{
+	dramasPath = path;
+}
+void Game::showWelcome()
+{
+	Console::showText("本文字游戏引擎由新创无际开发", true); 
+	Console::showText("This game engine is powered by Infinideas.", true);
+	Console::showText("Copyright 2015 Infinideas. Some rights reserved.", true);
+	Sleep(2500);
+	system("cls");
+	std::ifstream ifs(dramasPath+"\\welcome");
+	if (!ifs) return;
+	while (!ifs.eof()) {
+		string str;
+		std::getline(ifs, str);
+		if (str == "<-page end->") _getch();
+		else Console::showText(str, true);
+	}
+	_getch();
+}
 
 bool Game::loadDramas()
 {
@@ -16,7 +38,7 @@ bool Game::loadDramas()
 	bool loadSuccess = false;
 	std::stringstream ss;
 	std::ifstream ifs;
-	ifs.open("Dramas\\1.dat", std::ios::in | std::ios::binary); //打开文件
+	ifs.open(dramasPath+"\\1.dat", std::ios::in | std::ios::binary); //打开文件
 	while (ifs) {
 		int id;
 		ifs.read((char*)&id, sizeof(int));
@@ -92,7 +114,7 @@ bool Game::loadDramas()
 		dramas.push_back(dm);
 
 		i++;
-		ss << "Dramas\\" << i << ".dat";
+		ss << dramasPath << "\\" << i << ".dat";
 		ifs.open(ss.str(), std::ios::in | std::ios::binary); //打开文件，为下一次循环做准备
 	}
 	return loadSuccess;
@@ -106,6 +128,7 @@ void Game::mainLoop()
 	bool gameIsRunning = true;
 	while (gameIsRunning) {
 		drama& dmNow = dramas[dramaNow - 1];
+		vars["rand"] = rand() % 100;
 		system("cls");
 		if (dmNow.isEnding)
 		{

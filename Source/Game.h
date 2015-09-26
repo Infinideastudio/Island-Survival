@@ -4,6 +4,8 @@
 
 class Game {
 public:
+	static void setDramasPath(string path);
+	static void showWelcome();
 	static bool loadDramas();
 	static void mainLoop();
 	static void evalResult(string result, string split = ";");
@@ -15,5 +17,5 @@ private:
 	static vector<drama> dramas;
 	static map<string, int> vars;
 	static unsigned int dramaNow;
-
+	static string dramasPath;
 };
