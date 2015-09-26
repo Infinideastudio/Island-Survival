@@ -30,8 +30,14 @@ int Console::waitForChoose()
 {
 	unsigned char c;
 	do {
-		c = (char)(_getch() - '0');
-	} while ((c <= 0 || c > options->size()) && inputToOptions.find(c) != inputToOptions.end());  //判断按键是否有效
+		c = (char)_getch();
+		if (c == 's') Game::saveGame("1");
+		if (c == 'l') {
+			Game::loadGame("1");
+			return -1;
+		}
+		c -= '0';
+	} while (c <= 0 || c > options->size() || inputToOptions.find(c) == inputToOptions.end());  //判断按键是否有效
 	return inputToOptions[c];
 }
 

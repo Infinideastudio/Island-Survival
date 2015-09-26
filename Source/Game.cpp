@@ -106,6 +106,7 @@ void Game::mainLoop()
 	bool gameIsRunning = true;
 	while (gameIsRunning) {
 		drama& dmNow = dramas[dramaNow - 1];
+		system("cls");
 		if (dmNow.isEnding)
 		{
 			gameOver(dmNow.description);
@@ -114,8 +115,9 @@ void Game::mainLoop()
 		else {
 			Console::showDescription(dmNow.description);
 			Console::showOptions(&dmNow.options);
-			evalResult(dmNow.options[Console::waitForChoose() - 1].result);
-			system("cls");
+			int choose = Console::waitForChoose();
+			if (choose == -1) continue;
+			evalResult(dmNow.options[choose - 1].result);
 		}
 	}
 }
@@ -225,4 +227,27 @@ void Game::gameOver(string reason)
 {
 	Console::showText(reason, true);
 	Console::showText("”Œœ∑Ω· ¯£°", true);
+}
+
+void Game::saveGame(string id)
+{
+	std::ofstream os("Saves\\" + id + ".dat", std::ios::out | std::ios::binary);
+	os << dramaNow << " ";
+	for each (auto p in vars)
+	{
+		os << p.first << " " << p.second << " ";
+	}
+}
+
+void Game::loadGame(string id)
+{
+	std::ifstream is("Saves\\" + id + ".dat", std::ios::in | std::ios::binary);
+	is >> dramaNow;
+	vars.clear();
+	while (!is.eof()) {
+		string key;
+		int value;
+		is >> key >> value;
+		vars[key] = value;
+	}
 }
