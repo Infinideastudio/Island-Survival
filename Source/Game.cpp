@@ -3,7 +3,6 @@
 #include "Console.h"
 #include <fstream>
 #include <sstream>
-#include <Windows.h>
 #pragma warning(disable:4706) //条件表达式内的赋值
 #pragma warning(disable:4127) //条件表达式是常量
 vector<drama> Game::dramas;
@@ -18,20 +17,54 @@ void Game::setDramasPath(string path)
 
 void Game::showWelcome()
 {
-	Console::showText("本文字游戏引擎由新创无际开发", true); 
-	Console::showText("This game engine is powered by Infinideas.", true);
-	Console::showText("Copyright 2015 Infinideas. Some rights reserved.", true);
-	Sleep(1500);
-	system("cls");
-	std::ifstream ifs(dramasPath+"\\welcome");
+	for (int i = 0; i != 128 + 64; i++) {
+		float color = i < 128 ? 0 : (i - 128) / 64.0f;
+		Window::setBackgroundColor(color, color, color);
+		Window::clear();
+		Window::initCurPos(Window::screen_w / 5, Window::screen_h / 5 * 2);
+		Window::showText("         本文字游戏引擎由新创无际开发");
+		Window::showText("	This game engine is powered by Infinideas.");
+		Window::showText("Copyright 2015 Infinideas. Some rights reserved.");
+		Window::update();
+	}
+	std::ifstream ifs(dramasPath + "\\welcome");
 	if (!ifs) return;
+	Window::setBackgroundColor(1.0f, 1.0f, 1.0f);
+	Window::setColor(0, 0, 0);
+	Window::initCurPos(Window::screen_w / 10);
+	vector<string> strs;
 	while (!ifs.eof()) {
+		Window::clear();
+		Window::initCurPos();
+
 		string str;
 		std::getline(ifs, str);
-		if (str == "<-page end->") _getch();
-		else Console::showText(str, true);
+		if (str == "<-page end->") {
+			Window::pause();
+		}
+		else if (str == "") {
+			strs.push_back("");
+			std::getline(ifs, str);
+			strs.push_back(str);
+		}
+		else { strs.push_back(str); }
+
+		for each (string s in strs)
+		{
+			Window::showText(s);
+		}
+
+		Window::update(0.5);
 	}
-	_getch();
+	
+	Window::clear();
+	Window::initCurPos();
+	for each (string s in strs)
+	{
+		Window::showText(s);
+	}
+	Window::pause(true);
+	Window::update();
 }
 
 bool Game::loadDramas()
@@ -124,25 +157,28 @@ bool Game::loadDramas()
 
 void Game::mainLoop()
 {
-	CONSOLE_CURSOR_INFO cursor_info = { 1, 0 };
-	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursor_info);
 	if (dramas.size() == 0) return;
 	bool gameIsRunning = true;
 	while (gameIsRunning) {
 		drama& dmNow = dramas[dramaNow - 1];
 		vars["rand"] = rand() % 100;
-		system("cls");
 		if (dmNow.isEnding)
 		{
 			gameOver(dmNow.description);
 			gameIsRunning = false;
 		}
 		else {
-			int dm = dramaNow;
-			Console::showDescription(dmNow.description);
-			Console::showOptions(&dmNow.options);
+			unsigned int dm = dramaNow;
 			int choose = -1;
-			if (dramaNow == dm) choose = Console::waitForChoose();
+			while (!Window::waitForChoose(choose)) {
+				Window::clear();
+				Window::initCurPos();
+				Window::showDescription(dmNow.description);
+				Window::showOptions(&dmNow.options);
+				if (dramaNow != dm) break;
+				Window::update();
+			}
+			Window::update(0.3);
 			if (choose == -1) continue;
 			evalResult(dmNow.options[choose - 1].result);
 		}
@@ -181,7 +217,7 @@ void Game::evalResult(string result, string split)
 		string strsentence = sentence;
 		if (strsentence.substr(0, 4) == "goto") {
 			dramaNow = atoi(strsentence.substr(5).c_str());
-			if (dramaNow > dramas.size()) Console::showError("错误：指令" + strsentence + "执行失败！");
+			if (dramaNow > dramas.size()) Window::showError("错误：指令" + strsentence + "执行失败！");
 			continue;
 		}
 		else {
@@ -256,8 +292,12 @@ bool Game::evalBoolean(string sentence)
 
 void Game::gameOver(string reason)
 {
-	Console::showText(reason, true);
-	Console::showText("游戏结束！", true);
+	Window::clear();
+	Window::initCurPos();
+	Window::showText(reason);
+	Window::showText("游戏结束！");
+	Window::pause(true);
+	Window::update();
 }
 
 void Game::saveGame(string id)
