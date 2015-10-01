@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Game.h"
-#include "Console.h"
+#include "Window.h"
 #include <fstream>
 #include <sstream>
 #pragma warning(disable:4706) //条件表达式内的赋值
@@ -93,10 +93,10 @@ bool Game::loadDramas()
 			loadSuccess = false;
 			break;
 		}
-		auto description = std::auto_ptr<char>(new char[length + 1]);
-		ifs.read(description.get(), length);
-		description.get()[length] = '\0';
-		dm.description = description.get();
+		char* description = new char[length + 1];
+		ifs.read(description, length);
+		description[length] = '\0';
+		dm.description = description;
 		//开始读取选项
 		ifs.read((char*)&length, sizeof(int));
 		if (length == 0) {
@@ -104,12 +104,12 @@ bool Game::loadDramas()
 		}
 		else {
 			dm.isEnding = false;
-			auto options = std::auto_ptr<char>(new char[length + 1]);
-			ifs.read(options.get(), length);
-			options.get()[length] = '\0';
+			char* options = new char[length + 1];
+			ifs.read(options, length);
+			options[length] = '\0';
 			//循环切割选项
 			char* next_token = nullptr;
-			char* option = strtok_s(options.get(), "/", &next_token);
+			char* option = strtok_s(options, "/", &next_token);
 			while (option != nullptr)
 			{
 				optionPackage opt;
@@ -138,8 +138,9 @@ bool Game::loadDramas()
 				dm.options.push_back(opt);
 				option = strtok_s(nullptr, "/", &next_token);
 			}
+			delete[] options;
 		}
-
+		delete[] description;
 		ss.clear();
 		ss.str("");
 		ifs.close();
@@ -170,13 +171,17 @@ void Game::mainLoop()
 		else {
 			unsigned int dm = dramaNow;
 			int choose = -1;
+			unsigned int desProg = 0, optProg = 0;
+			bool desOK = false;
 			while (!Window::waitForChoose(choose)) {
 				Window::clear();
 				Window::initCurPos();
-				Window::showDescription(dmNow.description);
-				Window::showOptions(&dmNow.options);
+				Window::showDescription(dmNow.description, desProg, desOK);
+				Window::showOptions(&dmNow.options, optProg);
+				if (desProg <= dmNow.description.length()) desProg++;
+				if (desOK&&optProg <= dmNow.options.size()) optProg++;
 				if (dramaNow != dm) break;
-				Window::update();
+				Window::update(0.2);
 			}
 			Window::update(0.3);
 			if (choose == -1) continue;
@@ -209,9 +214,9 @@ std::pair<string, int> tryToGetVarName(string sentence) {
 void Game::evalResult(string result, string split)
 {
 	char* next_token = nullptr;
-	auto str = std::auto_ptr<char>(new char[result.length() + 1]);
-	strcpy_s(str.get(), result.length() + 1, result.data());
-	char* sentence = strtok_s(str.get(), ";", &next_token);
+	auto str = new char[result.length() + 1];
+	strcpy_s(str, result.length() + 1, result.data());
+	char* sentence = strtok_s(str, ";", &next_token);
 	do
 	{
 		string strsentence = sentence;
@@ -234,6 +239,7 @@ void Game::evalResult(string result, string split)
 			}
 		}
 	} while (sentence = strtok_s(nullptr, ";", &next_token));
+	delete[] str;
 }
 
 bool Game::evalBoolean(string sentence)

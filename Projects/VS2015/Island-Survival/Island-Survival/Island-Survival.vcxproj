@@ -151,15 +151,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\Source\Console.cpp" />
     <ClCompile Include="..\..\..\..\Source\Game.cpp" />
     <ClCompile Include="..\..\..\..\Source\Island-Survival.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\Source\Console.h" />
     <ClInclude Include="..\..\..\..\Source\Drama.h" />
     <ClInclude Include="..\..\..\..\Source\Game.h" />
     <ClInclude Include="..\..\..\..\Source\stdafx.h" />
+    <ClInclude Include="..\..\..\..\Source\Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -13,13 +13,10 @@ public:
 	inline static GLFWwindow* getWindow() { return win; }
 
 	//显示描述信息
-	inline static void showDescription(std::string text)
-	{
-		showText(text);
-	}
+	static void showDescription(std::string text, int prog, bool& ok);
 
 	//显示所有选项
-	static void showOptions(const vector<optionPackage>* opts);
+	static void showOptions(const vector<optionPackage>* opts, int prog);
 
 	//检测玩家选择
 	static bool waitForChoose(int& choose);
@@ -35,13 +32,13 @@ public:
 	}
 
 	template <typename T>
-	inline static void showText(T text) {
+	inline static void showText(T text, bool line = true) {
 		//std::cout << text;
 		std::stringstream ss;
 		ss << text;
 		glRasterPos2i(pos.x, pos.y);
 		drawString(ss.str());
-		newline();
+		if(line) newline();
 	}
 
 	inline static void clear() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
@@ -65,57 +62,21 @@ public:
 	static void update(double waitSec = 0);
 
 private:
-	static void selectFont(int size, int charset, const char* face) {
-		HFONT hFont = CreateFontA(size, 0, 0, 0, FW_MEDIUM, 0, 0, 0,
-			charset, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-			PROOF_QUALITY, DEFAULT_PITCH | FF_SWISS, face);
-		HFONT hOldFont = (HFONT)SelectObject(wglGetCurrentDC(), hFont);
-		DeleteObject(hOldFont);
-	}
+	static void selectFont(int size, int charset, const char* face);
 
-	static void drawString(string str) {
-		int len = 0;
-		wchar_t* wstring;
-		HDC hDC = wglGetCurrentDC();
-
-		for (int i = 0; str[i] != '\0'; ++i)
-		{
-			if (IsDBCSLeadByte(str[i]))
-				++i;
-			++len;
-		}
-
-		GLuint list = glGenLists(1);
-
-		// 将混合字符转化为宽字符
-		wstring = (wchar_t*)malloc((len + 1) * sizeof(wchar_t));
-		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, str.c_str(), -1, wstring, len);
-		wstring[len] = L'\0';
-
-		// 逐个输出字符
-		for (int i = 0; i < len; ++i)
-		{
-			wglUseFontBitmapsW(hDC, wstring[i], 1, list);
-			glCallList(list);
-		}
-
-		// 回收所有临时资源
-		free(wstring);
-		glDeleteLists(list, 1);
-	}
+	static void drawString(string str);
 	
 	inline static void newline(int = 0, int offsetY = lineHeight) {
 		//pos.x = offsetX;
 		pos.y += offsetY;
 	}
-
-	static int lineHeight;
-	static const vector<optionPackage>* options;
-	static GLFWwindow* win;
 	struct point {
 		int x, y;
 	};
 	static point pos;
+	static int lineHeight;
+	static const vector<optionPackage>* options;
+	static GLFWwindow* win;
 	static map<char, char> inputToOptions;
 	static bool gamePause;
 };

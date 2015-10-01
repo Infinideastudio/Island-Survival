@@ -18,17 +18,14 @@
     <ClCompile Include="..\..\..\..\Source\Island-Survival.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Console.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\Source\Game.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\Window.cpp">
+      <Filter>头文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\Source\Console.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\Source\stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -37,6 +34,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Source\Game.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\Window.h">
+      <Filter>源文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
