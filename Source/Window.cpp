@@ -66,16 +66,15 @@ void Window::showDescription(std::string text, int prog, bool& ok)
 				allshow = false;
 				break;
 			}
-			bool doublechar = false;
 			if (IsDBCSLeadByte(txt[j])) { //Ë«×Ö½Ú
-				doublechar = true;
+				showText(string() + txt[j] + txt[j + 1], false);
+				j++;
+				pos.x += 22;
 			}
-			if (doublechar)
-				showText(string() + txt[j] + txt[j+1], false);
-			else
+			else {
 				showText(txt[j], false);
-			if (doublechar) j++;
-			pos.x += doublechar ? 22 : 12;
+				pos.x += (txt[j] == 'm' || txt[j] == 'w') ? 16 : 12;
+			}	
 		}
 		txt = strtok_s(nullptr, "\r\n", &next_token);
 	}

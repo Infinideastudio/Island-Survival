@@ -159,6 +159,7 @@ bool Game::loadDramas()
 void Game::mainLoop()
 {
 	if (dramas.size() == 0) return;
+	Window::update(0.2);
 	bool gameIsRunning = true;
 	while (gameIsRunning) {
 		drama& dmNow = dramas[dramaNow - 1];
